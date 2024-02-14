@@ -20,7 +20,7 @@ import com.nsv.newstoroapp.util.Constants
 import com.nsv.newstoroapp.util.Resource
 import com.nsv.newstoroapp.R
 import com.nsv.newstoroapp.databinding.FragmentHeadlinesBinding
-import com.nsv.newstoroapp.MainActivity
+import com.nsv.newstoroapp.ui.MainActivity
 
 
 class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
@@ -34,6 +34,7 @@ class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding = FragmentHeadlinesBinding.bind(view)
 
 
@@ -83,7 +84,7 @@ class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
         })
 
         retryButton.setOnClickListener {
-            newsViewModel.getHeadlines("us")
+            newsViewModel.getHeadlines("in")
         }
     }
 
@@ -131,7 +132,7 @@ class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
             val shouldPaginate =
                 isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning && isTotalMoreThanVisible && isScrolling
             if (shouldPaginate) {
-                newsViewModel.getHeadlines("us")
+                newsViewModel.getHeadlines("in")
                 isScrolling = false
             }
         }

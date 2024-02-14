@@ -13,7 +13,7 @@ import com.nsv.newstoroapp.ui.NewsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.nsv.newstoroapp.R
 import com.nsv.newstoroapp.databinding.FragmentFavouritesBinding
-import com.nsv.newstoroapp.MainActivity
+import com.nsv.newstoroapp.ui.MainActivity
 
 
 

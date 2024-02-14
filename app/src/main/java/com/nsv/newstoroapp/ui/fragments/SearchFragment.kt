@@ -27,7 +27,7 @@ import androidx.lifecycle.Observer
 import com.nsv.newstoroapp.util.Resource
 import com.nsv.newstoroapp.R
 import com.nsv.newstoroapp.databinding.FragmentSearchBinding
-import com.nsv.newstoroapp.MainActivity
+import com.nsv.newstoroapp.ui.MainActivity
 
 
 
