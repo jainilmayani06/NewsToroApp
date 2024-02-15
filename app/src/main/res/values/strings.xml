@@ -23,6 +23,8 @@
 
     <string name="open_nav">Open Navigation Drawer</string>
     <string name="close_nav">Close Navigation Drawer</string>
+    <string name="setting_fragment">Setting Fragment</string>
+    <string name="category_fragment">Category Fragment</string>
 
 
 </resources>
