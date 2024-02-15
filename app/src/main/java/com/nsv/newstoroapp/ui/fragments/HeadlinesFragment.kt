@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -21,6 +22,10 @@ import com.nsv.newstoroapp.util.Resource
 import com.nsv.newstoroapp.R
 import com.nsv.newstoroapp.databinding.FragmentHeadlinesBinding
 import com.nsv.newstoroapp.ui.MainActivity
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
@@ -56,14 +61,56 @@ class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
             findNavController().navigate(R.id.action_headlinesFragment_to_articleFragment, bundle)
         }
 
-        newsViewModel.headlines.observe(viewLifecycleOwner, Observer { response ->
+        var job: Job? = null
+        binding.searchEdit.addTextChangedListener(){ editable ->
+            job?.cancel()
+            job = MainScope().launch {
+                delay(Constants.SEARCH_NEWS_TIME_DELAY)
+                editable?.let{
+                    if (editable.toString().isNotEmpty()){
+                        newsViewModel.searchNews(editable.toString())
+                    }
+                }
+            }
+        }
+
+
+        newsViewModel.searchNews.observe(viewLifecycleOwner, Observer { response ->
             when(response){
                 is Resource.Success<*> -> {
                     hideProgressBar()
                     hideErrorMessage()
                     response.data?.let {newsResponse ->
                         newsAdapter.differ.submitList(newsResponse.articles.toList())
-                        val totalPages = newsResponse.totalResults / Constants.QUERY_PAGE_SIZE + 2
+                        val totalPages = newsResponse.totalResults / Constants.QUERY_PAGE_SIZE + 5
+                        isLastPage = newsViewModel.searchNewsPage == totalPages
+                        if (isLastPage){
+                            binding.recyclerHeadlines.setPadding(0,0,0,0)
+                        }
+                    }
+                }
+                is Resource.Error<*> -> {
+                    hideProgressBar()
+                    response.message?.let { message ->
+                        Toast.makeText(activity, "Sorry error: $message", Toast.LENGTH_LONG).show()
+                        showErrorMessage(message)
+                    }
+                }
+                is Resource.Loading<*> -> {
+                    showProgressBar()
+                }
+            }
+        })
+
+        newsViewModel.headlines.observe(viewLifecycleOwner, Observer { response ->
+            when(response){
+                is Resource.Success<*> -> {
+                    hideProgressBar()
+                    hideErrorMessage()
+                    response.data?.let { newsResponse ->
+                        val articles = newsResponse.articles.filter { true }
+                        newsAdapter.differ.submitList(articles)
+                        val totalPages = newsResponse.totalResults / Constants.QUERY_PAGE_SIZE + 3
                         isLastPage = newsViewModel.headlinesPage == totalPages
                         if (isLastPage){
                             binding.recyclerHeadlines.setPadding(0,0,0,0)
@@ -152,6 +199,15 @@ class HeadlinesFragment : Fragment(R.layout.fragment_headlines) {
                 adapter = newsAdapter
                 layoutManager = LinearLayoutManager(activity)
                 addOnScrollListener(this@HeadlinesFragment.scrollListener)
+        }
+    }
+
+    private fun setupSearchRecycler() {
+        newsAdapter = NewsAdapter()
+        binding.recyclerHeadlines.apply {
+            adapter = newsAdapter
+            layoutManager = LinearLayoutManager(activity)
+            addOnScrollListener(this@HeadlinesFragment.scrollListener)
         }
     }
 }
